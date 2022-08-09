@@ -25,3 +25,20 @@ const makeProp = name => {
 
   return klass;
 };
+
+const makeEffect = (event, callback) => {
+  return class extends HTMLElement {
+    constructor() {
+      super();
+      this.handler = callback.bind(this);
+    }
+
+    connectedCallback() {
+      this.addEventListener(event, this.handler);
+    }
+
+    disconnectedCallback() {
+      this.removeEventListener(event, this.handler);
+    }
+  };
+};
