@@ -1,6 +1,8 @@
-const defineCustomElement = () => {
-  class Eric extends HTMLElement {
-  }
+const defineCustomElement = klass => {
+  customElements.define('eric-element', klass);
+}
 
-  customElements.define('eric-element', Eric);
+const makeVanilla = () => {
+  return class extends HTMLElement {
+  };
 }
