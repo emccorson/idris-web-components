@@ -1,54 +1,38 @@
 -- %default total
-%include JavaScript "helper.js"
 
 --------------------------------------------------------------------------------
 -- JS helpers
 --------------------------------------------------------------------------------
 
-%inline
-jscall : (fname : String) -> (ty : Type) -> {auto fty : FTy FFI_JS [] ty} -> ty
-jscall fname ty = foreign FFI_JS fname ty
+%foreign "browser:lambda: makerProp"
+prim__makerProp : String -> PrimIO AnyPtr
 
-defineCustomElement : Ptr -> JS_IO ()
-defineCustomElement = jscall "defineCustomElement(%0)" (Ptr -> JS_IO ())
+makerProp : String -> IO AnyPtr
+makerProp name = primIO $ prim__makerProp name
 
-makeVanilla : JS_IO Ptr
-makeVanilla = jscall "makeVanilla()" (JS_IO Ptr)
+%foreign "browser:lambda: defineCustomElement"
+prim__defineCustomElement : AnyPtr -> PrimIO ()
 
-makeProp : String -> JS_IO Ptr
-makeProp = jscall "makeProp(%0)" (String -> JS_IO Ptr)
-
-makeEffect : String -> (() -> JS_IO ()) -> JS_IO Ptr
-makeEffect event callback = jscall "makeEffect(%0, %1)" (String -> JsFn (() -> JS_IO ()) -> JS_IO Ptr) event (MkJsFn callback)
-
-makePropEffect : String -> JS_IO Ptr -> JS_IO Ptr
-makePropEffect name callback = callback >>= \c => jscall "makePropEffect(%0, %1)" (String -> Ptr -> JS_IO Ptr) name c
-
-addModifier : String -> JS_IO Ptr
-addModifier = jscall "addModifier(%0)" (String -> JS_IO Ptr)
+defineCustomElement : AnyPtr -> IO ()
+defineCustomElement maker = primIO $ prim__defineCustomElement maker
 
 --------------------------------------------------------------------------------
 -- Idris
 --------------------------------------------------------------------------------
 
 data CustomElement : Type -> Type where
-  Vanilla : CustomElement ()                        -- the most basic custom element
   Prop : (name : String) -> CustomElement ()        -- a custom element with a string property and a synced attribute
-  Effect : (event : String) -> (callback : JS_IO ()) -> CustomElement ()    -- a custom element that does something on an event
-  PropEffect : (name : String) -> (callback : JS_IO Ptr) -> CustomElement ()  -- a custom element with a prop that has a side-effect
 
-customElement : CustomElement a -> JS_IO ()
-customElement inp = buildClass inp >>= defineCustomElement
+customElement : CustomElement a -> IO ()
+customElement inp = do (_, maker) <- buildClass inp
+                       defineCustomElement maker
   where
-    buildClass : CustomElement a -> JS_IO Ptr
-    buildClass Vanilla = makeVanilla
-    buildClass (Prop name) = makeProp name
-    buildClass (Effect event callback) = makeEffect event (\_ => callback)
-    buildClass (PropEffect name callback) = makePropEffect name callback
+    buildClass : CustomElement b -> IO (b, AnyPtr)
+    buildClass (Prop name) = makerProp name >>= \maker => pure ((), maker)
 
 --------------------------------------------------------------------------------
 -- test
 --------------------------------------------------------------------------------
 
-main : JS_IO ()
-main = customElement $ PropEffect "color" $ addModifier "color"
+main : IO ()
+main = customElement $ Prop "hello"
