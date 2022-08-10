@@ -42,3 +42,33 @@ const makeEffect = (event, callback) => {
     }
   };
 };
+
+const makePropEffect = (name, callback) => {
+  const klass = class extends HTMLElement {
+
+    attributeChangedCallback() {
+      callback(this);
+    }
+
+    static get observedAttributes() {
+      return [name];
+    }
+  }
+
+  Object.defineProperty(klass.prototype, name, {
+    get() {
+      return this.getAttribute(name);
+    },
+    set(value) {
+      if (value === null || value === undefined) {
+        this.removeAttribute(name);
+      } else {
+        this.setAttribute(name, value);
+      }
+    }
+  });
+
+  return klass;
+};
+
+const addClass = name => self => self.classList.add(name);
