@@ -28,12 +28,21 @@ prim__defineCustomElement : AnyPtr -> PrimIO ()
 defineCustomElement : AnyPtr -> IO ()
 defineCustomElement make = primIO $ prim__defineCustomElement make
 
+%foreign "browser:lambda: setter"
+prim__setter : String -> String -> PrimIO ()
+
+setter : String -> String -> IO ()
+setter prop value = primIO $ prim__setter prop value
+
 --------------------------------------------------------------------------------
 -- Idris
 --------------------------------------------------------------------------------
 
+Setter : Type
+Setter = String -> IO ()
+
 data CustomElement : Type -> Type where
-  Prop : (name : String) -> CustomElement ()        -- a string property and a synced attribute
+  Prop : (name : String) -> CustomElement Setter        -- a string property and a synced attribute
   Listener : (event : String) -> (callback : IO ()) -> CustomElement ()    -- do some side-effect on an event
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
@@ -43,7 +52,7 @@ customElement inp = do (_, make) <- buildClass inp
                        defineCustomElement make
   where
     buildClass : CustomElement b -> IO (b, AnyPtr)
-    buildClass (Prop name) = makeProp name >>= \make => pure ((), make)
+    buildClass (Prop name) = makeProp name >>= \make => pure (setter name, make)
     buildClass (Listener event callback) = makeListener event callback >>= \make => pure ((), make)
     buildClass (x >>= f) = do (res1, make1) <- buildClass x
                               (res2, make2) <- buildClass (f res1)
@@ -55,4 +64,4 @@ customElement inp = do (_, make) <- buildClass inp
 --------------------------------------------------------------------------------
 
 main : IO ()
-main = customElement $ Prop "hello" >>= \_ => Prop "goodbye" >>= \_ => Listener "click" $ putStrLn "i was clicked"
+main = customElement $ Prop "hello" >>= \setHello => Listener "click" (setHello "dolly")
