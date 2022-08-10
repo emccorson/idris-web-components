@@ -1,5 +1,5 @@
-build:
-	idris --codegen javascript -o out.js CustomElement.idr
+build: CustomElement.idr
+	idris2 --codegen javascript -o out.js CustomElement.idr
 
 dev:
-	idris CustomElement.idr
+	idris2 CustomElement.idr
