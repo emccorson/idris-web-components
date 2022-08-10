@@ -16,6 +16,12 @@ prim__makeListener : String -> IO () -> PrimIO AnyPtr
 makeListener : String -> IO () -> IO AnyPtr
 makeListener event callback = primIO $ prim__makeListener event callback
 
+%foreign "browser:lambda: makeBind"
+prim__makeBind : AnyPtr -> AnyPtr -> PrimIO AnyPtr
+
+makeBind : AnyPtr -> AnyPtr -> IO AnyPtr
+makeBind f g = primIO $ prim__makeBind f g
+
 %foreign "browser:lambda: defineCustomElement"
 prim__defineCustomElement : AnyPtr -> PrimIO ()
 
@@ -30,6 +36,8 @@ data CustomElement : Type -> Type where
   Prop : (name : String) -> CustomElement ()        -- a string property and a synced attribute
   Listener : (event : String) -> (callback : IO ()) -> CustomElement ()    -- do some side-effect on an event
 
+  (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
+
 customElement : CustomElement a -> IO ()
 customElement inp = do (_, make) <- buildClass inp
                        defineCustomElement make
@@ -37,10 +45,14 @@ customElement inp = do (_, make) <- buildClass inp
     buildClass : CustomElement b -> IO (b, AnyPtr)
     buildClass (Prop name) = makeProp name >>= \make => pure ((), make)
     buildClass (Listener event callback) = makeListener event callback >>= \make => pure ((), make)
+    buildClass (x >>= f) = do (res1, make1) <- buildClass x
+                              (res2, make2) <- buildClass (f res1)
+                              bothMakes <- makeBind make1 make2
+                              pure (res2, bothMakes)
 
 --------------------------------------------------------------------------------
 -- test
 --------------------------------------------------------------------------------
 
 main : IO ()
-main = customElement $ Listener "click" $ putStrLn "hey now"
+main = customElement $ Prop "hello" >>= \_ => Prop "goodbye" >>= \_ => Listener "click" $ putStrLn "i was clicked"

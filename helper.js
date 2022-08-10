@@ -12,6 +12,7 @@ const makeListener = (event, callback) => obj => (
   {...obj, listeners: [...(obj.listeners || []), {event, callback}]}
 );
 
+const makeBind = (f, g) => obj => g(f(obj));
 
 ////////////////////////////////////////////////////////////////////////////////
 // DEFINE FUNCTION
