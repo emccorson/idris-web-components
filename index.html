@@ -3,9 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <script src="out.js"></script>
+  <style>
+    .color--pink {
+      background-color: pink;
+    }
+    .color--blue {
+      background-color: skyblue;
+    }
+  </style>
 </head>
 <body>
   <eric-element>I'm here!</eric-element>
+  <button onclick="e.color = 'blue'">blue</button>
+  <button onclick="e.color = 'pink'">pink</button>
   <script>
     var e = document.querySelector('eric-element');
   </script>

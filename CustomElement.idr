@@ -24,8 +24,8 @@ makeEffect event callback = jscall "makeEffect(%0, %1)" (String -> JsFn (() -> J
 makePropEffect : String -> JS_IO Ptr -> JS_IO Ptr
 makePropEffect name callback = callback >>= \c => jscall "makePropEffect(%0, %1)" (String -> Ptr -> JS_IO Ptr) name c
 
-addClass : String -> JS_IO Ptr
-addClass = jscall "addClass(%0)" (String -> JS_IO Ptr)
+addModifier : String -> JS_IO Ptr
+addModifier = jscall "addModifier(%0)" (String -> JS_IO Ptr)
 
 --------------------------------------------------------------------------------
 -- Idris
@@ -51,4 +51,4 @@ customElement inp = buildClass inp >>= defineCustomElement
 --------------------------------------------------------------------------------
 
 main : JS_IO ()
-main = customElement $ PropEffect "color" $ addClass "finally"
+main = customElement $ PropEffect "color" $ addModifier "color"

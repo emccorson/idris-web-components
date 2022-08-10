@@ -46,8 +46,8 @@ const makeEffect = (event, callback) => {
 const makePropEffect = (name, callback) => {
   const klass = class extends HTMLElement {
 
-    attributeChangedCallback() {
-      callback.call(this);
+    attributeChangedCallback(name, last, current) {
+      callback.call(this, last, current);
     }
 
     static get observedAttributes() {
@@ -71,4 +71,7 @@ const makePropEffect = (name, callback) => {
   return klass;
 };
 
-const addClass = name => function addClass() { this.classList.add(name); };
+const addModifier = name => function (last, current) {
+  this.classList.remove(`${name}--${last}`);
+  this.classList.add(`${name}--${current}`);
+};
