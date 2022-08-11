@@ -32,9 +32,9 @@ defineCustomElement : AnyPtr -> IO ()
 defineCustomElement make = primIO $ prim__defineCustomElement make
 
 %foreign "browser:lambda: setter"
-prim__setter : String -> String -> PrimIO ()
+prim__setter : String -> String -> PrimIO (This -> ())
 
-setter : String -> String -> IO ()
+setter : String -> String -> IO (This -> ())
 setter prop value = primIO $ prim__setter prop value
 
 %foreign "browser:lambda: getter"
@@ -48,7 +48,7 @@ getter prop = primIO $ prim__getter prop
 --------------------------------------------------------------------------------
 
 Setter : Type
-Setter = String -> IO ()
+Setter = String -> IO (This -> ())
 
 Getter : Type
 Getter = IO (This -> String)
@@ -76,5 +76,5 @@ customElement inp = do (_, make) <- buildClass inp
 --------------------------------------------------------------------------------
 
 main : IO ()
-main = customElement $ Prop "color" >>= \(makeGetColor, _) =>
-                       Listener "click" (\self => makeGetColor >>= \getColor => putStrLn (getColor self))
+main = customElement $ Prop "color" >>= \(_, setColor) =>
+                       Listener "click" (\self => setColor "lovely" >>= \f => pure (f self))
