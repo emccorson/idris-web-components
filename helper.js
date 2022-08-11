@@ -6,7 +6,7 @@
 // some extra functionality, such as a property or a listener.
 ////////////////////////////////////////////////////////////////////////////////
 
-const makeProp = name => obj => ({...obj, props: [...(obj.props || []), name]});
+const makeProp = (name, type) => obj => ({...obj, props: [...(obj.props || []), {name, type}]});
 
 const makeListener = (event, callback) => obj => (
   {...obj, listeners: [...(obj.listeners || []), {event, callback}]}
@@ -22,6 +22,32 @@ const makeBind = (f, g) => obj => g(f(obj));
 // Function that takes an object describing a custom element and creates a
 // custom element.
 ////////////////////////////////////////////////////////////////////////////////
+
+const stringGetterSetter = name => ({
+  get() {
+    return this.getAttribute(name);
+  },
+  set(value) {
+    if (value === null || value === undefined) {
+      this.removeAttribute(name);
+    } else {
+      this.setAttribute(name, value);
+    }
+  }
+});
+
+const boolGetterSetter = name => ({
+  get() {
+    return this.hasAttribute(name);
+  },
+  set(value) {
+    if (value) {
+      this.setAttribute(name, '');
+    } else {
+      this.removeAttribute(name);
+    }
+  }
+});
 
 const defineCustomElement = (tagName, make) => {
   const description = make({});
@@ -56,19 +82,19 @@ const defineCustomElement = (tagName, make) => {
     }
   };
 
-  description.props?.forEach(name => {
-    Object.defineProperty(ce.prototype, name, {
-      get() {
-        return this.getAttribute(name);
-      },
-      set(value) {
-        if (value === null || value === undefined) {
-          this.removeAttribute(name);
-        } else {
-          this.setAttribute(name, value);
-        }
-      }
-    });
+  description.props?.forEach(({name, type}) => {
+
+    let getterSetter;
+    switch (type) {
+      case 'string':
+        getterSetter = stringGetterSetter;
+        break;
+      case 'bool':
+        getterSetter = boolGetterSetter;
+        break;
+    }
+
+    Object.defineProperty(ce.prototype, name, getterSetter(name));
   });
 
   customElements.define(tagName, ce);
@@ -79,9 +105,6 @@ const defineCustomElement = (tagName, make) => {
 // MISC.
 ////////////////////////////////////////////////////////////////////////////////
 
-// note that setter has to return a traditional function
-// this is because idris uses arrow functions so we can't bind this
-// this also means we have to use callback().bind(this) instead of callback.bind(this)
-const setter = (prop, value) => function (self) { self[prop] = value; };
+const setter = (prop, value) => self => self[prop] = value;
 
-const getter = prop => function (self) { return self[prop]; };
+const getter = prop => self => self[prop];

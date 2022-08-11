@@ -4,14 +4,27 @@
 -- JS helpers
 --------------------------------------------------------------------------------
 
+data PropType : Type -> Type where
+  PropString : PropType String
+  PropBool : PropType Bool
+
 This : Type
 This = AnyPtr
 
-%foreign "browser:lambda: makeProp"
-prim__makeProp : String -> PrimIO AnyPtr
+Setter : Type -> Type
+Setter t = t -> IO (This -> ())
 
-makeProp : String -> IO AnyPtr
-makeProp name = primIO $ prim__makeProp name
+Getter : Type -> Type
+Getter t = IO (This -> t)
+
+%foreign "browser:lambda: makeProp"
+prim__makeProp : String -> String -> PrimIO AnyPtr
+
+makeProp : PropType t -> String -> IO AnyPtr
+makeProp pt name = let typeStr = case pt of
+                                      PropString => "string"
+                                      PropBool => "bool"
+                   in primIO $ prim__makeProp name typeStr
 
 %foreign "browser:lambda: makeListener"
 prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr
@@ -38,29 +51,35 @@ defineCustomElement : String -> AnyPtr -> IO ()
 defineCustomElement tagName make = primIO $ prim__defineCustomElement tagName make
 
 %foreign "browser:lambda: setter"
-prim__setter : String -> String -> PrimIO (This -> ())
+prim__setter_string : String -> String -> PrimIO (This -> ())
 
-setter : String -> String -> IO (This -> ())
-setter prop value = primIO $ prim__setter prop value
+%foreign "browser:lambda: setter"
+prim__setter_bool : String -> Bool -> PrimIO (This -> ())
+
+setter : PropType t -> String -> t -> IO (This -> ())
+setter pt prop value = let f = case pt of
+                                    PropString => prim__setter_string
+                                    PropBool => prim__setter_bool
+                       in primIO $ f prop value
 
 %foreign "browser:lambda: getter"
-prim__getter : String -> PrimIO (This -> String)
+prim__getter_string : String -> PrimIO (This -> String)
 
-getter : String -> IO (This -> String)
-getter prop = primIO $ prim__getter prop
+%foreign "browser:lambda: getter"
+prim__getter_bool : String -> PrimIO (This -> Bool)
+
+getter : PropType t -> String -> IO (This -> t)
+getter pt prop = let f = case pt of
+                              PropString => prim__getter_string
+                              PropBool => prim__getter_bool
+                 in primIO $ f prop
 
 --------------------------------------------------------------------------------
 -- Idris
 --------------------------------------------------------------------------------
 
-Setter : Type
-Setter = String -> IO (This -> ())
-
-Getter : Type
-Getter = IO (This -> String)
-
 data CustomElement : Type -> Type where
-  Prop : (name : String) -> CustomElement (Getter, Setter)        -- a string property and a synced attribute
+  Prop : (t : Type) -> {auto pt : PropType t} -> (name : String) -> CustomElement (Getter t, Setter t)        -- a property and a synced attribute
   Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
 
@@ -71,7 +90,7 @@ customElement tagName inp = do (_, make) <- buildClass inp
                                defineCustomElement tagName make
   where
     buildClass : CustomElement b -> IO (b, AnyPtr)
-    buildClass (Prop name) = makeProp name >>= \make => pure ((getter name, setter name), make)
+    buildClass (Prop {pt} _ name) = makeProp pt name >>= \make => pure ((getter pt name, setter pt name), make)
     buildClass (Listener event callback) = makeListener event callback >>= \make => pure ((), make)
     buildClass (Template template) = makeTemplate template >>= \make => pure ((), make)
     buildClass (x >>= f) = do (res1, make1) <- buildClass x
@@ -85,5 +104,6 @@ customElement tagName inp = do (_, make) <- buildClass inp
 
 main : IO ()
 main = customElement "eric-element" $ Template "<h1><slot></slot></h1>" >>= \_ =>
-                                      Prop "color" >>= \(_, setColor) =>
-                                      Listener "click" (\self => setColor "lovely" >>= \f => pure (f self))
+                                      Prop String "color" >>= \_ =>
+                                      Prop Bool "good" >>= \_ =>
+                                      Listener "click" (\_ => putStrLn "clicked")
