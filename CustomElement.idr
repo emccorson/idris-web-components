@@ -19,6 +19,12 @@ prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr
 makeListener : String -> (This -> IO ()) -> IO AnyPtr
 makeListener event callback = primIO $ prim__makeListener event (\self => toPrim $ callback self)
 
+%foreign "browser:lambda: makeTemplate"
+prim__makeTemplate : String -> PrimIO AnyPtr
+
+makeTemplate : String -> IO AnyPtr
+makeTemplate template = primIO $ prim__makeTemplate template
+
 %foreign "browser:lambda: makeBind"
 prim__makeBind : AnyPtr -> AnyPtr -> PrimIO AnyPtr
 
@@ -56,6 +62,7 @@ Getter = IO (This -> String)
 data CustomElement : Type -> Type where
   Prop : (name : String) -> CustomElement (Getter, Setter)        -- a string property and a synced attribute
   Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
+  Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
 
@@ -66,6 +73,7 @@ customElement tagName inp = do (_, make) <- buildClass inp
     buildClass : CustomElement b -> IO (b, AnyPtr)
     buildClass (Prop name) = makeProp name >>= \make => pure ((getter name, setter name), make)
     buildClass (Listener event callback) = makeListener event callback >>= \make => pure ((), make)
+    buildClass (Template template) = makeTemplate template >>= \make => pure ((), make)
     buildClass (x >>= f) = do (res1, make1) <- buildClass x
                               (res2, make2) <- buildClass (f res1)
                               bothMakes <- makeBind make1 make2
@@ -76,5 +84,6 @@ customElement tagName inp = do (_, make) <- buildClass inp
 --------------------------------------------------------------------------------
 
 main : IO ()
-main = customElement "eric-element" $ Prop "color" >>= \(_, setColor) =>
+main = customElement "eric-element" $ Template "<h1><slot></slot></h1>" >>= \_ =>
+                                      Prop "color" >>= \(_, setColor) =>
                                       Listener "click" (\self => setColor "lovely" >>= \f => pure (f self))

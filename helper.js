@@ -12,6 +12,8 @@ const makeListener = (event, callback) => obj => (
   {...obj, listeners: [...(obj.listeners || []), {event, callback}]}
 );
 
+const makeTemplate = template => obj => ({...obj, template});
+
 const makeBind = (f, g) => obj => g(f(obj));
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,10 +30,21 @@ const defineCustomElement = (tagName, make) => {
 
   const {event, callback} = description.listeners[0];
 
+  let template;
+  if (description.template) {
+    template = document.createElement('template');
+    template.innerHTML = description.template;
+  }
+
   const ce = class extends HTMLElement {
     constructor() {
       super();
       this.handler = callback(this);
+
+      if (template) {
+        this.attachShadow({mode: 'open'});
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+      }
     }
 
     connectedCallback() {
