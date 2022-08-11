@@ -4,6 +4,9 @@
 -- JS helpers
 --------------------------------------------------------------------------------
 
+This : Type
+This = AnyPtr
+
 %foreign "browser:lambda: makeProp"
 prim__makeProp : String -> PrimIO AnyPtr
 
@@ -11,10 +14,10 @@ makeProp : String -> IO AnyPtr
 makeProp name = primIO $ prim__makeProp name
 
 %foreign "browser:lambda: makeListener"
-prim__makeListener : String -> IO () -> PrimIO AnyPtr
+prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr
 
-makeListener : String -> IO () -> IO AnyPtr
-makeListener event callback = primIO $ prim__makeListener event callback
+makeListener : String -> (This -> IO ()) -> IO AnyPtr
+makeListener event callback = primIO $ prim__makeListener event (\self => toPrim $ callback self)
 
 %foreign "browser:lambda: makeBind"
 prim__makeBind : AnyPtr -> AnyPtr -> PrimIO AnyPtr
@@ -34,6 +37,12 @@ prim__setter : String -> String -> PrimIO ()
 setter : String -> String -> IO ()
 setter prop value = primIO $ prim__setter prop value
 
+%foreign "browser:lambda: getter"
+prim__getter : String -> PrimIO (This -> String)
+
+getter : String -> IO (This -> String)
+getter prop = primIO $ prim__getter prop
+
 --------------------------------------------------------------------------------
 -- Idris
 --------------------------------------------------------------------------------
@@ -41,9 +50,12 @@ setter prop value = primIO $ prim__setter prop value
 Setter : Type
 Setter = String -> IO ()
 
+Getter : Type
+Getter = IO (This -> String)
+
 data CustomElement : Type -> Type where
-  Prop : (name : String) -> CustomElement Setter        -- a string property and a synced attribute
-  Listener : (event : String) -> (callback : IO ()) -> CustomElement ()    -- do some side-effect on an event
+  Prop : (name : String) -> CustomElement (Getter, Setter)        -- a string property and a synced attribute
+  Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
 
@@ -52,7 +64,7 @@ customElement inp = do (_, make) <- buildClass inp
                        defineCustomElement make
   where
     buildClass : CustomElement b -> IO (b, AnyPtr)
-    buildClass (Prop name) = makeProp name >>= \make => pure (setter name, make)
+    buildClass (Prop name) = makeProp name >>= \make => pure ((getter name, setter name), make)
     buildClass (Listener event callback) = makeListener event callback >>= \make => pure ((), make)
     buildClass (x >>= f) = do (res1, make1) <- buildClass x
                               (res2, make2) <- buildClass (f res1)
@@ -64,4 +76,5 @@ customElement inp = do (_, make) <- buildClass inp
 --------------------------------------------------------------------------------
 
 main : IO ()
-main = customElement $ Prop "hello" >>= \setHello => Listener "click" (setHello "dolly")
+main = customElement $ Prop "color" >>= \(makeGetColor, _) =>
+                       Listener "click" (\self => makeGetColor >>= \getColor => putStrLn (getColor self))

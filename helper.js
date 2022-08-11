@@ -31,7 +31,7 @@ const defineCustomElement = make => {
   const ce = class extends HTMLElement {
     constructor() {
       super();
-      this.handler = callback().bind(this);
+      this.handler = callback(this);
     }
 
     connectedCallback() {
@@ -70,3 +70,5 @@ const defineCustomElement = make => {
 // this is because idris uses arrow functions so we can't bind this
 // this also means we have to use callback().bind(this) instead of callback.bind(this)
 const setter = (prop, value) => function () { this[prop] = value; };
+
+const getter = prop => function (self) { return self[prop]; };
