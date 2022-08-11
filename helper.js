@@ -21,7 +21,7 @@ const makeBind = (f, g) => obj => g(f(obj));
 // custom element.
 ////////////////////////////////////////////////////////////////////////////////
 
-const defineCustomElement = make => {
+const defineCustomElement = (tagName, make) => {
   const description = make({});
 
   console.log(description);
@@ -58,7 +58,7 @@ const defineCustomElement = make => {
     });
   });
 
-  customElements.define('eric-element', ce);
+  customElements.define(tagName, ce);
 };
 
 

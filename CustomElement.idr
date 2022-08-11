@@ -26,10 +26,10 @@ makeBind : AnyPtr -> AnyPtr -> IO AnyPtr
 makeBind f g = primIO $ prim__makeBind f g
 
 %foreign "browser:lambda: defineCustomElement"
-prim__defineCustomElement : AnyPtr -> PrimIO ()
+prim__defineCustomElement : String -> AnyPtr -> PrimIO ()
 
-defineCustomElement : AnyPtr -> IO ()
-defineCustomElement make = primIO $ prim__defineCustomElement make
+defineCustomElement : String -> AnyPtr -> IO ()
+defineCustomElement tagName make = primIO $ prim__defineCustomElement tagName make
 
 %foreign "browser:lambda: setter"
 prim__setter : String -> String -> PrimIO (This -> ())
@@ -59,9 +59,9 @@ data CustomElement : Type -> Type where
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
 
-customElement : CustomElement a -> IO ()
-customElement inp = do (_, make) <- buildClass inp
-                       defineCustomElement make
+customElement : (tagName : String) -> CustomElement a -> IO ()
+customElement tagName inp = do (_, make) <- buildClass inp
+                               defineCustomElement tagName make
   where
     buildClass : CustomElement b -> IO (b, AnyPtr)
     buildClass (Prop name) = makeProp name >>= \make => pure ((getter name, setter name), make)
@@ -76,5 +76,5 @@ customElement inp = do (_, make) <- buildClass inp
 --------------------------------------------------------------------------------
 
 main : IO ()
-main = customElement $ Prop "color" >>= \(_, setColor) =>
-                       Listener "click" (\self => setColor "lovely" >>= \f => pure (f self))
+main = customElement "eric-element" $ Prop "color" >>= \(_, setColor) =>
+                                      Listener "click" (\self => setColor "lovely" >>= \f => pure (f self))
