@@ -8,6 +8,10 @@ data PropType : Type -> Type where
   PropString : PropType String
   PropBool : PropType Bool
 
+typeString : PropType t -> String
+typeString PropString = "string"
+typeString PropBool = "bool"
+
 This : Type
 This = AnyPtr
 
@@ -21,10 +25,13 @@ Getter t = IO (This -> t)
 prim__makeProp : String -> String -> PrimIO AnyPtr
 
 makeProp : PropType t -> String -> IO AnyPtr
-makeProp pt name = let typeStr = case pt of
-                                      PropString => "string"
-                                      PropBool => "bool"
-                   in primIO $ prim__makeProp name typeStr
+makeProp pt name = primIO $ prim__makeProp name (typeString pt)
+
+%foreign "browser:lambda: makePropEffect"
+prim__makePropEffect : String -> (This -> String -> String -> PrimIO ()) -> String -> PrimIO AnyPtr
+
+makePropEffect : PropType t -> String -> (This -> String -> String -> IO ()) -> IO AnyPtr
+makePropEffect pt name callback = primIO $ prim__makePropEffect name (\self, last, current => toPrim $ callback self last current) (typeString pt)
 
 %foreign "browser:lambda: makeListener"
 prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr
@@ -81,6 +88,10 @@ getter PropBool prop = do getInt <- primIO $ prim__getter_bool prop
 
 data CustomElement : Type -> Type where
   Prop : (t : Type) -> {auto pt : PropType t} -> (name : String) -> CustomElement (Getter t, Setter t)        -- a property and a synced attribute
+
+  PropEffect : (t : Type) -> {auto pt : PropType t} -> (name : String) ->              -- a property that does some side-effect when set
+               (callback : This -> String -> String -> IO ()) -> CustomElement (Getter t, Setter t)
+
   Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
 
@@ -93,6 +104,8 @@ customElement tagName inp = do (_, make) <- buildClass inp
   where
     buildClass : CustomElement b -> IO (b, AnyPtr)
     buildClass (Prop {pt} _ name) = makeProp pt name >>= \make => pure ((getter pt name, setter pt name), make)
+    buildClass (PropEffect {pt} _ name callback) =
+      makePropEffect pt name callback >>= \make => pure ((getter pt name, setter pt name), make)
     buildClass (Listener event callback) = makeListener event callback >>= \make => pure ((), make)
     buildClass (Template template) = makeTemplate template >>= \make => pure ((), make)
     buildClass (x >>= f) = do (res1, make1) <- buildClass x
@@ -108,8 +121,14 @@ customElement tagName inp = do (_, make) <- buildClass inp
 -- test
 --------------------------------------------------------------------------------
 
+%foreign "browser:lambda: switchClass"
+prim__switchClass : String -> PrimIO (This -> String -> String -> ())
+
+switchClass : String -> IO (This -> String -> String -> ())
+switchClass prop = primIO $ prim__switchClass prop
+
 main : IO ()
 main = customElement "eric-element" $ do Template "<h1><slot></slot></h1>"
-                                         Prop String "good"
-                                         Prop String "whatever"
+                                         PropEffect String "color" $ \self, last, current => do s <- switchClass "color"
+                                                                                                pure (s self last current)
                                          Listener "click" (\_ => putStrLn "clicked")

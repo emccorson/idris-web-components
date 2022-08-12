@@ -8,6 +8,10 @@
 
 const makeProp = (name, type) => obj => ({...obj, props: [...(obj.props || []), {name, type}]});
 
+const makePropEffect = (name, callback, type) => obj => (
+  {...obj, props: [...(obj.props || []), {name, type, callback}]}
+);
+
 const makeListener = (event, callback) => obj => (
   {...obj, listeners: [...(obj.listeners || []), {event, callback}]}
 );
@@ -80,6 +84,16 @@ const defineCustomElement = (tagName, make) => {
     disconnectedCallback() {
       this.removeEventListener(event, this.handler);
     }
+
+    attributeChangedCallback(name, last, current) {
+      description.props.find(p => p.name === name)?.callback?.(this)(last)(current)();
+    };
+
+    static get observedAttributes() {
+      return (description.props || [])
+        .filter(p => p.callback)
+        .map(p => p.name);
+    }
   };
 
   description.props?.forEach(({name, type}) => {
@@ -112,3 +126,10 @@ const getter = prop => self => self[prop];
 // this returns an int that corresponds to the Idris constructors False and True
 // see https://github.com/idris-lang/Idris2/issues/2620
 const getter_bool = prop => self => self[prop] ? 1 : 0;
+
+
+//const switchClass = prop => (self, last, current) => {
+const switchClass = prop => self => last => current => {
+  self.classList.remove(`${prop}--${last}`);
+  self.classList.add(`${prop}--${current}`);
+};

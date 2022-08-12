@@ -6,17 +6,17 @@
   <script src="build/exec/out.js"></script>
   <style>
     .color--pink {
-      background-color: pink;
+      color: pink;
     }
     .color--blue {
-      background-color: skyblue;
+      color: skyblue;
     }
   </style>
 </head>
 <body>
   <eric-element>I'm here!</eric-element>
-  <button onclick="e.good = false">set good false</button>
-  <button onclick="e.good = true">set good true</button>
+  <button onclick="e.color = 'blue'">blue</button>
+  <button onclick="e.color = 'pink'">pink</button>
   <script>
     var e = document.querySelector('eric-element');
   </script>
