@@ -65,14 +65,15 @@ setter pt prop value = let f = case pt of
 %foreign "browser:lambda: getter"
 prim__getter_string : String -> PrimIO (This -> String)
 
-%foreign "browser:lambda: getter"
-prim__getter_bool : String -> PrimIO (This -> Bool)
+%foreign "browser:lambda: getter_bool"
+prim__getter_bool : String -> PrimIO (This -> Int)
 
 getter : PropType t -> String -> IO (This -> t)
-getter pt prop = let f = case pt of
-                              PropString => prim__getter_string
-                              PropBool => prim__getter_bool
-                 in primIO $ f prop
+getter PropString prop = primIO $ prim__getter_string prop
+getter PropBool prop = do getInt <- primIO $ prim__getter_bool prop
+                          pure (\self => case getInt self of
+                                              0 => False
+                                              _ => True)
 
 --------------------------------------------------------------------------------
 -- Idris
@@ -104,6 +105,8 @@ customElement tagName inp = do (_, make) <- buildClass inp
 
 main : IO ()
 main = customElement "eric-element" $ Template "<h1><slot></slot></h1>" >>= \_ =>
-                                      Prop String "color" >>= \_ =>
-                                      Prop Bool "good" >>= \_ =>
-                                      Listener "click" (\_ => putStrLn "clicked")
+                                      Prop Bool "good" >>= \(getGood, setGood) =>
+                                      Listener "click" (\self => getGood >>= \g => let msg = case g self of
+                                                                                                  False => "oh no"
+                                                                                                  True => "oh yes"
+                                                                                   in putStrLn msg)

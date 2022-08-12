@@ -108,3 +108,7 @@ const defineCustomElement = (tagName, make) => {
 const setter = (prop, value) => self => self[prop] = value;
 
 const getter = prop => self => self[prop];
+
+// this returns an int that corresponds to the Idris constructors False and True
+// see https://github.com/idris-lang/Idris2/issues/2620
+const getter_bool = prop => self => self[prop] ? 1 : 0;
