@@ -129,6 +129,5 @@ switchClass prop = primIO $ prim__switchClass prop
 
 main : IO ()
 main = customElement "eric-element" $ do Template "<h1><slot></slot></h1>"
-                                         PropEffect String "color" $ \self, last, current => do s <- switchClass "color"
-                                                                                                pure (s self last current)
-                                         Listener "click" (\_ => putStrLn "clicked")
+                                         Listener "click" $ \_ => putStrLn "clicked"
+                                         Listener "click" $ \_ => putStrLn "clacked"

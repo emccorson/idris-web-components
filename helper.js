@@ -58,8 +58,6 @@ const defineCustomElement = (tagName, make) => {
 
   console.log(description);
 
-  const {event, callback} = description.listeners[0];
-
   let template;
   if (description.template) {
     template = document.createElement('template');
@@ -69,7 +67,9 @@ const defineCustomElement = (tagName, make) => {
   const ce = class extends HTMLElement {
     constructor() {
       super();
-      this.handler = callback(this);
+
+      this.listeners = (description.listeners || [])
+        .map(({event, callback}) => ({event, handler: callback(this)}));
 
       if (template) {
         this.attachShadow({mode: 'open'});
@@ -78,11 +78,13 @@ const defineCustomElement = (tagName, make) => {
     }
 
     connectedCallback() {
-      this.addEventListener(event, this.handler);
+      this.listeners.forEach(({event, handler}) =>
+        this.addEventListener(event, handler));
     }
 
     disconnectedCallback() {
-      this.removeEventListener(event, this.handler);
+      this.listeners.forEach(({event, handler}) =>
+        this.removeEventListener(event, handler));
     }
 
     attributeChangedCallback(name, last, current) {
