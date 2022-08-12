@@ -85,6 +85,7 @@ data CustomElement : Type -> Type where
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
+  (>>) : CustomElement a -> CustomElement b -> CustomElement b
 
 customElement : (tagName : String) -> CustomElement a -> IO ()
 customElement tagName inp = do (_, make) <- buildClass inp
@@ -98,15 +99,17 @@ customElement tagName inp = do (_, make) <- buildClass inp
                               (res2, make2) <- buildClass (f res1)
                               bothMakes <- makeBind make1 make2
                               pure (res2, bothMakes)
+    buildClass (x >> y) = do (_, make1) <- buildClass x
+                             (res, make2) <- buildClass y
+                             bothMakes <- makeBind make1 make2
+                             pure (res, bothMakes)
 
 --------------------------------------------------------------------------------
 -- test
 --------------------------------------------------------------------------------
 
 main : IO ()
-main = customElement "eric-element" $ Template "<h1><slot></slot></h1>" >>= \_ =>
-                                      Prop Bool "good" >>= \(getGood, setGood) =>
-                                      Listener "click" (\self => getGood >>= \g => let msg = case g self of
-                                                                                                  False => "oh no"
-                                                                                                  True => "oh yes"
-                                                                                   in putStrLn msg)
+main = customElement "eric-element" $ do Template "<h1><slot></slot></h1>"
+                                         Prop String "good"
+                                         Prop String "whatever"
+                                         Listener "click" (\_ => putStrLn "clicked")
