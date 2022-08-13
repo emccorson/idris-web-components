@@ -24,3 +24,4 @@ customElement tagName inp = do (_, make) <- buildClass inp
                              (res, make2) <- buildClass y
                              bothMakes <- makeBind make1 make2
                              pure (res, bothMakes)
+    buildClass (Pure x) = makePure >>= \make => pure (x, make)

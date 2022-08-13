@@ -41,6 +41,13 @@ export
 makeBind : AnyPtr -> AnyPtr -> IO AnyPtr
 makeBind f g = primIO $ prim__makeBind f g
 
+%foreign "browser:lambda: makePure"
+prim__makePure : PrimIO AnyPtr
+
+export
+makePure : IO AnyPtr
+makePure = primIO prim__makePure
+
 %foreign "browser:lambda: defineCustomElement"
 prim__defineCustomElement : String -> AnyPtr -> PrimIO ()
 

@@ -29,3 +29,4 @@ data CustomElement : Type -> Type where
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
   (>>) : CustomElement a -> CustomElement b -> CustomElement b
+  Pure : t -> CustomElement t
