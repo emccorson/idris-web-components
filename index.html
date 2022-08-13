@@ -2,23 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8" />
+  <link rel="stylesheet" href="onsenui.css" />
+  <link rel="stylesheet" href="onsen-css-components.css" />
   <script src="helper.js"></script>
   <script src="build/exec/out.js"></script>
-  <style>
-    .color--pink {
-      color: pink;
-    }
-    .color--blue {
-      color: skyblue;
-    }
-  </style>
 </head>
 <body>
-  <eric-element>I'm here!</eric-element>
-  <button onclick="e.color = 'blue'">blue</button>
-  <button onclick="e.color = 'pink'">pink</button>
-  <script>
-    var e = document.querySelector('eric-element');
-  </script>
+  <ons-list>
+    <ons-list-item>one</ons-list-item>
+    <ons-list-item>two</ons-list-item>
+    <ons-list-item expandable>
+      three
+      <div slot="expandable-content">
+        hello there
+      </div>
+    </ons-list-item>
+  </ons-list>
 </body>
 </html>
