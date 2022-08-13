@@ -90,7 +90,17 @@ const defineCustomElement = (tagName, make) => {
     }
 
     attributeChangedCallback(name, last, current) {
-      description.props.find(p => p.name === name)?.callback?.(this)(last)(current)();
+      const p = description.props.find(p => p.name === name);
+      if (p && p.callback) {
+        switch (p.type) {
+          case "bool":
+            p.callback(this)(last)(this[name] ? 1 : 0)();
+            break;
+          default:
+            p.callback(this)(last)(this[name])();
+            break;
+        }
+      }
     };
 
     static get observedAttributes() {

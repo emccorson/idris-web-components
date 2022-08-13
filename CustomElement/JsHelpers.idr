@@ -14,11 +14,17 @@ makeProp : PropType t -> String -> IO AnyPtr
 makeProp pt name = primIO $ prim__makeProp name (typeString pt)
 
 %foreign "browser:lambda: makePropEffect"
-prim__makePropEffect : String -> (This -> String -> String -> PrimIO ()) -> String -> PrimIO AnyPtr
+prim__makePropEffect_string : String -> (This -> String -> String -> PrimIO ()) -> String -> PrimIO AnyPtr
+
+%foreign "browser:lambda: makePropEffect"
+prim__makePropEffect_bool : String -> (This -> String -> Bool -> PrimIO ()) -> String -> PrimIO AnyPtr
 
 export
-makePropEffect : PropType t -> String -> (This -> String -> String -> IO ()) -> IO AnyPtr
-makePropEffect pt name callback = primIO $ prim__makePropEffect name (\self, last, current => toPrim $ callback self last current) (typeString pt)
+makePropEffect : PropType t -> String -> (This -> String -> t -> IO ()) -> IO AnyPtr
+makePropEffect pt name callback = let f = case pt of
+                                               PropString => prim__makePropEffect_string
+                                               PropBool => prim__makePropEffect_bool
+                                  in primIO $ f name (\self, last, current => toPrim $ callback self last current) (typeString pt)
 
 %foreign "browser:lambda: makeListener"
 prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr

@@ -22,7 +22,7 @@ data CustomElement : Type -> Type where
   Prop : (t : Type) -> {auto pt : PropType t} -> (name : String) -> CustomElement (Getter t, Setter t)        -- a property and a synced attribute
 
   PropEffect : (t : Type) -> {auto pt : PropType t} -> (name : String) ->              -- a property that does some side-effect when set
-               (callback : This -> String -> String -> IO ()) -> CustomElement (Getter t, Setter t)
+               (callback : This -> String -> t -> IO ()) -> CustomElement (Getter t, Setter t)
 
   Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
