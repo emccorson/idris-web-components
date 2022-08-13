@@ -3,3 +3,6 @@ build: CustomElement.idr
 
 dev:
 	idris2 CustomElement.idr
+
+clean:
+	rm -rf build *.idr~
