@@ -18,11 +18,19 @@ Getter : Type -> Type
 Getter t = IO (This -> t)
 
 public export
+ToAttr : Type -> Type
+ToAttr t = t -> Maybe String
+
+public export
+FromAttr : Type -> Type
+FromAttr t = Maybe String -> t
+
+public export
 data CustomElement : Type -> Type where
   Prop : (t : Type) -> {auto pt : PropType t} -> (name : String) -> CustomElement (Getter t, Setter t)        -- a property and a synced attribute
 
   PropEffect : (t : Type) -> {auto pt : PropType t} -> (name : String) ->              -- a property that does some side-effect when set
-               (callback : This -> String -> t -> IO ()) -> CustomElement (Getter t, Setter t)
+               (callback : This -> t -> t -> IO ()) -> CustomElement (Getter t, Setter t)
 
   Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template

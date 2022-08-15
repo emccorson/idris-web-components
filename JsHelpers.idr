@@ -6,6 +6,18 @@ typeString : PropType t -> String
 typeString PropString = "string"
 typeString PropBool = "bool"
 
+stringToAttr : ToAttr String
+
+stringFromAttr : FromAttr String
+
+boolToAttr : ToAttr Bool
+boolToAttr False = Nothing
+boolToAttr True = Just ""
+
+boolFromAttr : FromAttr Bool
+boolFromAttr Nothing = False
+boolFromAttr (Just _) = True
+
 %foreign "browser:lambda: makeProp"
 prim__makeProp : String -> String -> PrimIO AnyPtr
 
@@ -14,17 +26,19 @@ makeProp : PropType t -> String -> IO AnyPtr
 makeProp pt name = primIO $ prim__makeProp name (typeString pt)
 
 %foreign "browser:lambda: makePropEffect"
-prim__makePropEffect_string : String -> (This -> String -> String -> PrimIO ()) -> String -> PrimIO AnyPtr
+prim__makePropEffect_string : String -> String -> (This -> String -> String -> PrimIO ()) ->
+                              ToAttr String -> FromAttr String -> PrimIO AnyPtr
 
 %foreign "browser:lambda: makePropEffect"
-prim__makePropEffect_bool : String -> (This -> String -> Bool -> PrimIO ()) -> String -> PrimIO AnyPtr
+prim__makePropEffect_bool : String -> String -> (This -> Bool -> Bool -> PrimIO ()) ->
+                            ToAttr Bool -> FromAttr Bool -> PrimIO AnyPtr
 
 export
-makePropEffect : PropType t -> String -> (This -> String -> t -> IO ()) -> IO AnyPtr
-makePropEffect pt name callback = let f = case pt of
-                                               PropString => prim__makePropEffect_string
-                                               PropBool => prim__makePropEffect_bool
-                                  in primIO $ f name (\self, last, current => toPrim $ callback self last current) (typeString pt)
+makePropEffect : PropType t -> String -> (This -> t -> t -> IO ()) -> IO AnyPtr
+makePropEffect PropString name callback =
+  primIO $ prim__makePropEffect_string name (typeString PropString) (\self, last, current => toPrim $ callback self last current) stringToAttr stringFromAttr
+makePropEffect PropBool name callback =
+  primIO $ prim__makePropEffect_bool name (typeString PropBool) (\self, last, current => toPrim $ callback self last current) boolToAttr boolFromAttr
 
 %foreign "browser:lambda: makeListener"
 prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr

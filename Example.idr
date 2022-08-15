@@ -5,5 +5,4 @@ import OnsList
 import OnsListItem
 
 main : IO ()
-main = do customElement "ons-list" onsList
-          customElement "ons-list-item" onsListItem
+main = customElement "eric-element" $ do PropEffect Bool "open" (\self, last, current => putStrLn $ "was " ++ show last ++ " now " ++ show current)

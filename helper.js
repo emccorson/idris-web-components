@@ -8,8 +8,8 @@
 
 const makeProp = (name, type) => obj => ({...obj, props: [...(obj.props || []), {name, type}]});
 
-const makePropEffect = (name, callback, type) => obj => (
-  {...obj, props: [...(obj.props || []), {name, type, callback}]}
+const makePropEffect = (name, type, callback, toAttr, fromAttr) => obj => (
+  {...obj, props: [...(obj.props || []), {name, type, callback, toAttr, fromAttr}]}
 );
 
 const makeListener = (event, callback) => obj => (
@@ -59,6 +59,7 @@ const defineCustomElement = (tagName, make) => {
   const description = make({});
 
   console.log(description);
+  window.d = description;
 
   let template;
   if (description.template) {
@@ -94,10 +95,10 @@ const defineCustomElement = (tagName, make) => {
       if (p && p.callback) {
         switch (p.type) {
           case "bool":
-            p.callback(this)(last)(this[name] ? 1 : 0)();
+            p.callback(this)(p.fromAttr(toIdrisMaybe(last)))(toIdrisBool(this[name]))();
             break;
           default:
-            p.callback(this)(last)(this[name])();
+            p.callback(this)(p.fromAttr(last))(this[name])();
             break;
         }
       }
@@ -130,6 +131,19 @@ const defineCustomElement = (tagName, make) => {
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// IDRIS/JS CONVERSION FUNCTIONS
+////////////////////////////////////////////////////////////////////////////////
+
+const toIdrisMaybe = x => x === null ? {h: 0} : {a1: x};
+
+const fromIdrisMaybe = ({h, a1}) => h === 0 ? null : a1;
+
+const toIdrisBool = x => x ? 1 : 0;
+
+const fromIdrisBool = x => x === 0 ? false : true;
+
+
+////////////////////////////////////////////////////////////////////////////////
 // MISC.
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +153,7 @@ const getter = prop => self => self[prop];
 
 // this returns an int that corresponds to the Idris constructors False and True
 // see https://github.com/idris-lang/Idris2/issues/2620
-const getter_bool = prop => self => self[prop] ? 1 : 0;
+const getter_bool = prop => self => toIdrisBool(self[prop]);
 
 
 //const switchClass = prop => (self, last, current) => {
