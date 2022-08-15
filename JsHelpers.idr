@@ -1,6 +1,7 @@
 module JsHelpers
 
 import Types
+import Decidable.Equality
 
 typeString : PropType t -> String
 typeString PropString = "string"
@@ -10,13 +11,52 @@ stringToAttr : ToAttr String
 
 stringFromAttr : FromAttr String
 
-boolToAttr : ToAttr Bool
-boolToAttr False = Nothing
-boolToAttr True = Just ""
 
-boolFromAttr : FromAttr Bool
-boolFromAttr Nothing = False
-boolFromAttr (Just _) = True
+record Attr (t : Type) where
+  constructor MkAttr
+  toAttr : t -> Maybe String
+  fromAttr : Maybe String -> t
+  surjProof : (x : t) -> fromAttr (toAttr x) = x
+
+
+stringAttr : Attr String
+stringAttr = MkAttr toAttr fromAttr surjProof
+  where
+    toAttr : String -> Maybe String
+    toAttr s = toAttr' s (decEq s "default")
+      where
+        toAttr' : (s' : String) -> (Dec (s' = "default")) -> Maybe String
+        toAttr' s' (Yes prf) = Nothing
+        toAttr' s' (No contra) = Just s'
+
+    fromAttr : Maybe String -> String
+    fromAttr = fst . fromAttr'
+      where
+        fromAttr' : Maybe String -> (s : String ** Dec (s = "default"))
+        fromAttr' Nothing = ("default" ** Yes Refl)
+        fromAttr' (Just x) = (x ** decEq x "default")
+
+    surjProof : (s : String) -> fromAttr (toAttr s) = s
+    surjProof s with (decEq s "default")
+      surjProof s | (Yes prf) = sym prf
+      surjProof s | (No contra) = Refl
+
+
+boolAttr : Attr Bool
+boolAttr = MkAttr toAttr fromAttr surjProof
+  where
+    toAttr : Bool -> Maybe String
+    toAttr False = Nothing
+    toAttr True = Just ""
+
+    fromAttr : Maybe String -> Bool
+    fromAttr Nothing = False
+    fromAttr (Just _) = True
+
+    surjProof : (b : Bool) -> fromAttr (toAttr b) = b
+    surjProof False = Refl
+    surjProof True = Refl
+
 
 %foreign "browser:lambda: makeProp"
 prim__makeProp : String -> String -> PrimIO AnyPtr
@@ -38,7 +78,7 @@ makePropEffect : PropType t -> String -> (This -> t -> t -> IO ()) -> IO AnyPtr
 makePropEffect PropString name callback =
   primIO $ prim__makePropEffect_string name (typeString PropString) (\self, last, current => toPrim $ callback self last current) stringToAttr stringFromAttr
 makePropEffect PropBool name callback =
-  primIO $ prim__makePropEffect_bool name (typeString PropBool) (\self, last, current => toPrim $ callback self last current) boolToAttr boolFromAttr
+  primIO $ prim__makePropEffect_bool name (typeString PropBool) (\self, last, current => toPrim $ callback self last current) (toAttr boolAttr) (fromAttr boolAttr)
 
 %foreign "browser:lambda: makeListener"
 prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr
