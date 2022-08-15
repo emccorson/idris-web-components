@@ -1,7 +1,7 @@
 module CustomElement
 
-import public CustomElement.JsHelpers
-import public CustomElement.Types
+import public JsHelpers
+import public Types
 
 -- %default total
 

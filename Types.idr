@@ -1,4 +1,4 @@
-module CustomElement.Types
+module Types
 
 public export
 data PropType : Type -> Type where

@@ -1,6 +1,6 @@
-module CustomElement.JsHelpers
+module JsHelpers
 
-import CustomElement.Types
+import Types
 
 typeString : PropType t -> String
 typeString PropString = "string"
