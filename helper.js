@@ -6,11 +6,27 @@
 // some extra functionality, such as a property or a listener.
 ////////////////////////////////////////////////////////////////////////////////
 
-const makeProp = (name, type) => obj => ({...obj, props: [...(obj.props || []), {name, type}]});
+const makeProp = (name, type, toAttr, fromAttr, callback = undefined) => obj => {
+  let to, from, cb;
+  switch (type) {
+    case 'string':
+      to = str => fromIdrisMaybe(toAttr(str));
+      from = attr => fromAttr(toIdrisMaybe(attr));
+      cb = typeof callback === "function" ?
+        (self, last, current) => callback(self)(last)(current)() :
+        null;
+      break;
+    case 'bool':
+      to = bool => fromIdrisMaybe(toAttr(toIdrisBool(bool)));
+      from = attr => fromIdrisBool(fromAttr(toIdrisMaybe(attr)));
+      cb = typeof callback === "function" ?
+        (self, last, current) => callback(self)(toIdrisBool(last))(toIdrisBool(current))() :
+        null;
+      break;
+  }
 
-const makePropEffect = (name, type, callback, toAttr, fromAttr) => obj => (
-  {...obj, props: [...(obj.props || []), {name, type, callback, toAttr, fromAttr}]}
-);
+  return {...obj, props: [...(obj.props || []), {name, type, callback: cb, toAttr: to, fromAttr: from}]};
+};
 
 const makeListener = (event, callback) => obj => (
   {...obj, listeners: [...(obj.listeners || []), {event, callback}]}
@@ -28,32 +44,6 @@ const makePure = obj => obj;
 // Function that takes an object describing a custom element and creates a
 // custom element.
 ////////////////////////////////////////////////////////////////////////////////
-
-const stringGetterSetter = name => ({
-  get() {
-    return this.getAttribute(name);
-  },
-  set(value) {
-    if (value === null || value === undefined) {
-      this.removeAttribute(name);
-    } else {
-      this.setAttribute(name, value);
-    }
-  }
-});
-
-const boolGetterSetter = name => ({
-  get() {
-    return this.hasAttribute(name);
-  },
-  set(value) {
-    if (value) {
-      this.setAttribute(name, '');
-    } else {
-      this.removeAttribute(name);
-    }
-  }
-});
 
 const defineCustomElement = (tagName, make) => {
   const description = make({});
@@ -93,14 +83,7 @@ const defineCustomElement = (tagName, make) => {
     attributeChangedCallback(name, last, current) {
       const p = description.props.find(p => p.name === name);
       if (p && p.callback) {
-        switch (p.type) {
-          case "bool":
-            p.callback(this)(p.fromAttr(toIdrisMaybe(last)))(toIdrisBool(this[name]))();
-            break;
-          default:
-            p.callback(this)(p.fromAttr(last))(this[name])();
-            break;
-        }
+        p.callback(this, p.fromAttr(last), p.fromAttr(current));
       }
     };
 
@@ -111,19 +94,21 @@ const defineCustomElement = (tagName, make) => {
     }
   };
 
-  description.props?.forEach(({name, type}) => {
-
-    let getterSetter;
-    switch (type) {
-      case 'string':
-        getterSetter = stringGetterSetter;
-        break;
-      case 'bool':
-        getterSetter = boolGetterSetter;
-        break;
-    }
-
-    Object.defineProperty(ce.prototype, name, getterSetter(name));
+  description.props?.forEach(({name, type, toAttr, fromAttr}) => {
+    Object.defineProperty(ce.prototype, name, {
+      get() {
+        const attr = this.hasAttribute(name) ? this.getAttribute(name) : null;
+        return fromAttr(attr);
+      },
+      set(value) {
+        const attr = toAttr(value);
+        if (attr === null) {
+          this.removeAttribute(name);
+        } else {
+          this.setAttribute(name, attr);
+        }
+      }
+    });
   });
 
   customElements.define(tagName, ce);
