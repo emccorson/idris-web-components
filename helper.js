@@ -37,7 +37,7 @@ const makeTemplate = template => obj => ({...obj, template});
 
 const makeBind = (f, g) => obj => g(f(obj));
 
-const makePure = obj => obj;
+const makePure = () => obj => obj;
 
 ////////////////////////////////////////////////////////////////////////////////
 // DEFINE FUNCTION
