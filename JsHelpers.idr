@@ -138,12 +138,9 @@ setter pt prop value = let f = case pt of
 prim__getter_string : String -> PrimIO (This -> String)
 
 %foreign "browser:lambda: getter_bool"
-prim__getter_bool : String -> PrimIO (This -> Int)
+prim__getter_bool : String -> PrimIO (This -> Bool)
 
 export
 getter : PropType t -> String -> IO (This -> t)
 getter PropString prop = primIO $ prim__getter_string prop
-getter PropBool prop = do getInt <- primIO $ prim__getter_bool prop
-                          pure (\self => case getInt self of
-                                              0 => False
-                                              _ => True)
+getter PropBool prop = primIO $ prim__getter_bool prop
