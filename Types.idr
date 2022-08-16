@@ -18,6 +18,10 @@ Getter : Type -> Type
 Getter t = IO (This -> t)
 
 public export
+EventDispatcher : Type
+EventDispatcher = IO (This -> ())
+
+public export
 ToAttr : Type -> Type
 ToAttr t = t -> Maybe String
 
@@ -34,6 +38,8 @@ data CustomElement : Type -> Type where
 
   Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
+
+  Event : (name : String) -> CustomElement EventDispatcher        -- an event with a function to trigger the event
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
   (>>) : CustomElement a -> CustomElement b -> CustomElement b

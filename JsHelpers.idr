@@ -134,3 +134,10 @@ export
 getter : PropType t -> String -> IO (This -> t)
 getter PropString prop = primIO $ prim__getter_string prop
 getter PropBool prop = primIO $ prim__getter_bool prop
+
+%foreign "browser:lambda: eventDispatcher"
+prim__eventDispatcher : String -> PrimIO (This -> ())
+
+export
+eventDispatcher : String -> IO (This -> ())
+eventDispatcher name = primIO $ prim__eventDispatcher name

@@ -141,9 +141,4 @@ const getter = prop => self => self[prop];
 // see https://github.com/idris-lang/Idris2/issues/2620
 const getter_bool = prop => self => toIdrisBool(self[prop]);
 
-
-//const switchClass = prop => (self, last, current) => {
-const switchClass = prop => self => last => current => {
-  self.classList.remove(`${prop}--${last}`);
-  self.classList.add(`${prop}--${current}`);
-};
+const eventDispatcher = name => self => self.dispatchEvent(new CustomEvent(name, { bubbles: true }));
