@@ -6,7 +6,8 @@
 // some extra functionality, such as a property or a listener.
 ////////////////////////////////////////////////////////////////////////////////
 
-const makeProp = (name, type, toAttr, fromAttr, callback = undefined) => obj => {
+// the first argument is _ because it's an implicit from Idris that we can ignore
+const makeProp = (_, name, type, toAttr, fromAttr, callback = undefined) => obj => {
   let to, from, cb;
   switch (type) {
     case 'string':
@@ -132,7 +133,7 @@ const fromIdrisBool = x => x === 0 ? false : true;
 // MISC.
 ////////////////////////////////////////////////////////////////////////////////
 
-const setter = (prop, value) => self => self[prop] = value;
+const setter = (_, prop, value) => self => self[prop] = value;
 
 const getter = prop => self => self[prop];
 

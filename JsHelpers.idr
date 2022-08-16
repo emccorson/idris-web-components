@@ -54,37 +54,33 @@ boolAttr = MkAttr toAttr fromAttr surjProof
     surjProof True = Refl
 
 
-%foreign "browser:lambda: makeProp"
-prim__makeProp_string : String -> String ->
-                        ToAttr String -> FromAttr String ->
-                        PrimIO AnyPtr
+getAttr : PropType t -> Attr t
+getAttr PropString = stringAttr
+getAttr PropBool = boolAttr
+
 
 %foreign "browser:lambda: makeProp"
-prim__makeProp_bool : String -> String ->
-                      ToAttr Bool -> FromAttr Bool ->
-                      PrimIO AnyPtr
+prim__makeProp : String -> String ->
+                 ToAttr t -> FromAttr t ->
+                 PrimIO AnyPtr
 
 export
 makeProp : PropType t -> String -> IO AnyPtr
-makeProp PropString name = primIO $ prim__makeProp_string name (typeString PropString) (toAttr stringAttr) (fromAttr stringAttr)
-makeProp PropBool name = primIO $ prim__makeProp_bool name (typeString PropBool) (toAttr boolAttr) (fromAttr boolAttr)
+makeProp pt name = let attr = getAttr pt
+                   in primIO $ prim__makeProp name (typeString pt) (toAttr attr) (fromAttr attr)
 
 %foreign "browser:lambda: makeProp"
-prim__makePropEffect_string : String -> String ->
-                              ToAttr String -> FromAttr String ->
-                              (This -> String -> String -> PrimIO ()) -> PrimIO AnyPtr
-
-%foreign "browser:lambda: makeProp"
-prim__makePropEffect_bool : String -> String ->
-                            ToAttr Bool -> FromAttr Bool ->
-                            (This -> Bool -> Bool -> PrimIO ()) -> PrimIO AnyPtr
+prim__makePropEffect : String -> String ->
+                       ToAttr t -> FromAttr t ->
+                       (This -> t -> t -> PrimIO ()) -> PrimIO AnyPtr
 
 export
 makePropEffect : PropType t -> String -> (This -> t -> t -> IO ()) -> IO AnyPtr
-makePropEffect PropString name callback =
-  primIO $ prim__makePropEffect_string name (typeString PropString) (toAttr stringAttr) (fromAttr stringAttr) (\self, last, current => toPrim $ callback self last current)
-makePropEffect PropBool name callback =
-  primIO $ prim__makePropEffect_bool name (typeString PropBool) (toAttr boolAttr) (fromAttr boolAttr) (\self, last, current => toPrim $ callback self last current)
+makePropEffect pt name callback = let
+                                    attr = getAttr pt
+                                    f = \self, last, current => toPrim $ callback self last current
+                                  in
+                                    primIO $ prim__makePropEffect name (typeString pt) (toAttr attr) (fromAttr attr) f
 
 %foreign "browser:lambda: makeListener"
 prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr
@@ -122,17 +118,11 @@ defineCustomElement : String -> AnyPtr -> IO ()
 defineCustomElement tagName make = primIO $ prim__defineCustomElement tagName make
 
 %foreign "browser:lambda: setter"
-prim__setter_string : String -> String -> PrimIO (This -> ())
-
-%foreign "browser:lambda: setter"
-prim__setter_bool : String -> Bool -> PrimIO (This -> ())
+prim__setter : String -> t -> PrimIO (This -> ())
 
 export
 setter : PropType t -> String -> t -> IO (This -> ())
-setter pt prop value = let f = case pt of
-                                    PropString => prim__setter_string
-                                    PropBool => prim__setter_bool
-                       in primIO $ f prop value
+setter pt prop value = primIO $ prim__setter prop value
 
 %foreign "browser:lambda: getter"
 prim__getter_string : String -> PrimIO (This -> String)
