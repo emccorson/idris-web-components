@@ -1,10 +1,10 @@
 module Main
 
 import CustomElement
-import OnsList
-import OnsListItem
 
 main : IO ()
-main = customElement "eric-element" $ do triggerAction <- Event "action"
-                                         Listener "click" (\self => triggerAction <*> pure self)
-                                         Listener "action" (\self => putStrLn "action, boys.")
+main = customElement "eric-element" $ do (getMsg, setMsg) <- State String "message" "hello"
+                                         Listener "click" (\self => do msg <- getMsg <*> pure self
+                                                                       putStrLn $ "my secret message is " ++ msg
+                                                                       putStrLn "now let's destroy it"
+                                                                       setMsg "[REDACTED]" <*> pure self)

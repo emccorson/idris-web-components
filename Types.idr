@@ -6,6 +6,10 @@ data PropType : Type -> Type where
   PropBool : PropType Bool
 
 public export
+data StateType : Type -> Type where
+  StateString : StateType String
+
+public export
 This : Type
 This = AnyPtr
 
@@ -40,6 +44,8 @@ data CustomElement : Type -> Type where
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
 
   Event : (name : String) -> CustomElement EventDispatcher        -- an event with a function to trigger the event
+
+  State : (t : Type) -> {auto st : StateType t} -> (key : String) -> (initialValue : t) -> CustomElement (IO (This -> t), t -> IO (This -> ()))
 
   (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
   (>>) : CustomElement a -> CustomElement b -> CustomElement b

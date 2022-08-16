@@ -35,6 +35,8 @@ const makeListener = (event, callback) => obj => (
 
 const makeTemplate = template => obj => ({...obj, template});
 
+const makeState = (key, initialValue) => obj => ({...obj, state: {...(obj.state || {}), [key]: initialValue}});
+
 const makeBind = (f, g) => obj => g(f(obj));
 
 const makePure = () => obj => obj;
@@ -69,6 +71,8 @@ const defineCustomElement = (tagName, make) => {
         this.attachShadow({mode: 'open'});
         this.shadowRoot.appendChild(template.content.cloneNode(true));
       }
+
+      this._state = {...(d.state || {})};
     }
 
     connectedCallback() {
@@ -142,3 +146,7 @@ const getter = prop => self => self[prop];
 const getter_bool = prop => self => toIdrisBool(self[prop]);
 
 const eventDispatcher = name => self => self.dispatchEvent(new CustomEvent(name, { bubbles: true }));
+
+const getState = key => self => self._state[key];
+
+const setState = (key, value) => self => self._state[key] = value;

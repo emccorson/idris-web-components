@@ -96,6 +96,13 @@ export
 makeTemplate : String -> IO AnyPtr
 makeTemplate template = primIO $ prim__makeTemplate template
 
+%foreign "browser:lambda: makeState"
+prim__makeState : String -> String -> PrimIO AnyPtr
+
+export
+makeState : StateType t -> String -> t -> IO AnyPtr
+makeState StateString key init = primIO $ prim__makeState key init
+
 %foreign "browser:lambda: makeBind"
 prim__makeBind : AnyPtr -> AnyPtr -> PrimIO AnyPtr
 
@@ -141,3 +148,17 @@ prim__eventDispatcher : String -> PrimIO (This -> ())
 export
 eventDispatcher : String -> IO (This -> ())
 eventDispatcher name = primIO $ prim__eventDispatcher name
+
+%foreign "browser:lambda: getState"
+prim__getState_string : String -> PrimIO (This -> String)
+
+export
+getState : StateType t -> String -> IO (This -> t)
+getState StateString key = primIO $ prim__getState_string key
+
+%foreign "browser:lambda: setState"
+prim__setState_string : String -> String -> PrimIO (This -> ())
+
+export
+setState : StateType t -> String -> t -> IO (This -> ())
+setState StateString key value = primIO $ prim__setState_string key value
