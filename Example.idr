@@ -2,9 +2,6 @@ module Main
 
 import CustomElement
 
-import OnsTab
-import OnsTabbar
-
 child : CustomElement ()
 child = do Prop String "hello"
            Template "<slot></slot>"
