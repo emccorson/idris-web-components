@@ -18,6 +18,9 @@ customElement tagName inp = do (_, make) <- buildClass inp
     buildClass (Template template) = makeTemplate template >>= \make => pure ((), make)
     buildClass (Event name) = makePure >>= \make => pure (eventDispatcher name, make)
     buildClass (State key init) = makeState key init >>= \make => pure ((getState key, setState key), make)
+    buildClass (Depend want _) = do (res, _) <- buildClass want
+                                    make <- makePure
+                                    pure (res, make)
     buildClass (x >>= f) = do (res1, make1) <- buildClass x
                               (res2, make2) <- buildClass (f res1)
                               bothMakes <- makeBind make1 make2
