@@ -65,7 +65,7 @@ const defineCustomElement = (tagName, make) => {
       super();
 
       this.listeners = (description.listeners || [])
-        .map(({event, callback}) => ({event, handler: callback(this)}));
+        .map(({event, callback}) => ({event, handler: ({target}) => callback(this)(target)()}));
 
       if (template) {
         this.attachShadow({mode: 'open'});

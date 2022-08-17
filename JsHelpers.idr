@@ -82,11 +82,11 @@ makePropEffect pt name callback = let
                                     primIO $ prim__makePropEffect name (typeString pt) (toAttr attr) (fromAttr attr) f
 
 %foreign "browser:lambda: makeListener"
-prim__makeListener : String -> (This -> PrimIO ()) -> PrimIO AnyPtr
+prim__makeListener : String -> (This -> Target -> PrimIO ()) -> PrimIO AnyPtr
 
 export
-makeListener : String -> (This -> IO ()) -> IO AnyPtr
-makeListener event callback = primIO $ prim__makeListener event (\self => toPrim $ callback self)
+makeListener : String -> (This -> Target -> IO ()) -> IO AnyPtr
+makeListener event callback = primIO $ prim__makeListener event (\self, target => toPrim $ callback self target)
 
 %foreign "browser:lambda: makeTemplate"
 prim__makeTemplate : String -> PrimIO AnyPtr

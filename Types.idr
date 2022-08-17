@@ -10,6 +10,10 @@ This : Type
 This = AnyPtr
 
 public export
+Target : Type
+Target = AnyPtr
+
+public export
 Setter : Type -> Type
 Setter t = t -> IO (This -> ())
 
@@ -36,7 +40,7 @@ data CustomElement : Type -> Type where
   PropEffect : (t : Type) -> {auto pt : PropType t} -> (name : String) ->              -- a property that does some side-effect when set
                (callback : This -> t -> t -> IO ()) -> CustomElement (Getter t, Setter t)
 
-  Listener : (event : String) -> (callback : This -> IO ()) -> CustomElement ()    -- do some side-effect on an event
+  Listener : (event : String) -> (callback : This -> Target -> IO ()) -> CustomElement ()    -- do some side-effect on an event
   Template : (template : String) -> CustomElement ()              -- add a Shadow DOM with an HTML template
 
   Event : (name : String) -> CustomElement EventDispatcher        -- an event with a function to trigger the event

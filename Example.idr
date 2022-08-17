@@ -2,8 +2,9 @@ module Main
 
 import CustomElement
 
+import OnsTab
+import OnsTabbar
+
 main : IO ()
-main = customElement "eric-element" $ do (getCount, setCount) <- State "count" 0
-                                         Listener "click" (\self => do c <- getCount <*> pure self
-                                                                       putStrLn $ show c
-                                                                       setCount (c + 1) <*> pure self)
+main = do customElement "ons-tab" onsTab
+          customElement "ons-tabbar" onsTabbar
