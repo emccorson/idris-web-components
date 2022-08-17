@@ -3,8 +3,7 @@ module Main
 import CustomElement
 
 main : IO ()
-main = customElement "eric-element" $ do (getMsg, setMsg) <- State String "message" "hello"
-                                         Listener "click" (\self => do msg <- getMsg <*> pure self
-                                                                       putStrLn $ "my secret message is " ++ msg
-                                                                       putStrLn "now let's destroy it"
-                                                                       setMsg "[REDACTED]" <*> pure self)
+main = customElement "eric-element" $ do (getCount, setCount) <- State "count" 0
+                                         Listener "click" (\self => do c <- getCount <*> pure self
+                                                                       putStrLn $ show c
+                                                                       setCount (c + 1) <*> pure self)

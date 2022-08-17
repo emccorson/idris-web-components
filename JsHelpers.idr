@@ -7,7 +7,6 @@ typeString : PropType t -> String
 typeString PropString = "string"
 typeString PropBool = "bool"
 
-
 record Attr (t : Type) where
   constructor MkAttr
   toAttr : t -> Maybe String
@@ -97,11 +96,11 @@ makeTemplate : String -> IO AnyPtr
 makeTemplate template = primIO $ prim__makeTemplate template
 
 %foreign "browser:lambda: makeState"
-prim__makeState : String -> String -> PrimIO AnyPtr
+prim__makeState : String -> t -> PrimIO AnyPtr
 
 export
-makeState : StateType t -> String -> t -> IO AnyPtr
-makeState StateString key init = primIO $ prim__makeState key init
+makeState : String -> t -> IO AnyPtr
+makeState key init = primIO $ prim__makeState key init
 
 %foreign "browser:lambda: makeBind"
 prim__makeBind : AnyPtr -> AnyPtr -> PrimIO AnyPtr
@@ -150,15 +149,15 @@ eventDispatcher : String -> IO (This -> ())
 eventDispatcher name = primIO $ prim__eventDispatcher name
 
 %foreign "browser:lambda: getState"
-prim__getState_string : String -> PrimIO (This -> String)
+prim__getState : String -> PrimIO (This -> t)
 
 export
-getState : StateType t -> String -> IO (This -> t)
-getState StateString key = primIO $ prim__getState_string key
+getState : String -> IO (This -> t)
+getState key = primIO $ prim__getState key
 
 %foreign "browser:lambda: setState"
-prim__setState_string : String -> String -> PrimIO (This -> ())
+prim__setState : String -> t -> PrimIO (This -> ())
 
 export
-setState : StateType t -> String -> t -> IO (This -> ())
-setState StateString key value = primIO $ prim__setState_string key value
+setState : String -> t -> IO (This -> ())
+setState key value = primIO $ prim__setState key value

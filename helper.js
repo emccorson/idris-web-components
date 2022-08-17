@@ -35,7 +35,7 @@ const makeListener = (event, callback) => obj => (
 
 const makeTemplate = template => obj => ({...obj, template});
 
-const makeState = (key, initialValue) => obj => ({...obj, state: {...(obj.state || {}), [key]: initialValue}});
+const makeState = (_, key, initialValue) => obj => ({...obj, state: {...(obj.state || {}), [key]: initialValue}});
 
 const makeBind = (f, g) => obj => g(f(obj));
 
@@ -147,6 +147,6 @@ const getter_bool = prop => self => toIdrisBool(self[prop]);
 
 const eventDispatcher = name => self => self.dispatchEvent(new CustomEvent(name, { bubbles: true }));
 
-const getState = key => self => self._state[key];
+const getState = (_, key) => self => self._state[key];
 
-const setState = (key, value) => self => self._state[key] = value;
+const setState = (_, key, value) => self => self._state[key] = value;
