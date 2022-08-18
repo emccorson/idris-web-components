@@ -2,4 +2,3 @@ result
 build/
 *.ibc
 *.idr~
-out.js
