@@ -1,5 +1,5 @@
 {
-  description = "Custom Elements in Idris";
+  description = "Custom Elements for the web in Idris";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
