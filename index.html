@@ -5,13 +5,19 @@
   <link rel="stylesheet" href="onsenui.css" />
   <link rel="stylesheet" href="onsen-css-components.css" />
   <script src="helper.js"></script>
-  <script src="build/exec/out.js"></script>
+  <script src="build/exec/out.js" defer></script>
 </head>
 <body>
-  <eric-parent>
-    I am the parent
-    <eric-child></eric-child>
-  <eric-parent>
+
+  <ons-page>
+    <ons-tabbar>
+      <ons-page slot="pages">Hello there</ons-page>
+
+      <ons-tab id="tab1" class="tabbar__item" slot="tabs">home</ons-tab>
+      <ons-tab id="tab2" class="tabbar__item" slot="tabs">settings</ons-tab>
+    </ons-tabbar>
+  </ons-page>
+
   <script>
     window.e = document.querySelector('eric-element');
   </script>

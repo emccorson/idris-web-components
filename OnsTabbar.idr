@@ -1,32 +1,66 @@
 module OnsTabbar
 
 import CustomElement
+import OnsGlobal
 
-%foreign "browser:lambda: e => e.id"
-prim__id : AnyPtr -> PrimIO String
+css : String
+css =
+  """
+  \{globalCss}
+  """
 
-id : AnyPtr -> IO String
-id ptr = primIO $ prim__id ptr
+%foreign "browser:lambda: (id, self) => self.querySelector(`#${id}`).active = false"
+prim__removeActive : String -> This -> PrimIO ()
 
-%foreign "browser:lambda: id => document.getElementById(id).active = false"
-prim__removeActive : String -> PrimIO ()
+removeActive : String -> This -> IO ()
+removeActive id self = primIO $ prim__removeActive id self
 
-removeActive : String -> IO ()
-removeActive ptr = primIO $ prim__removeActive ptr
+%foreign "browser:lambda: ({id}) => id"
+prim__getId : AnyPtr -> PrimIO String
+
+getId : AnyPtr -> IO String
+getId target = primIO $ prim__getId target
+
+%foreign "browser:lambda: self => self.querySelector('ons-tab').id"
+prim__getFirstTab : This -> PrimIO String
+
+getFirstTab : This -> IO String
+getFirstTab self = primIO $ prim__getFirstTab self
+
+%foreign "browser:lambda: self => self.shadowRoot.querySelector('slot[name=\"tabs\"]').addEventListener('slotchange', e => e.target.assignedNodes()[0].active = true)"
+prim__firstTabListener : This -> PrimIO ()
+
+firstTabListener : This -> IO ()
+firstTabListener self = primIO $ prim__firstTabListener self
 
 export
 onsTabbar : CustomElement ()
 onsTabbar = do Template
                  """
-                 <slot></slot>
+                 <style>
+                   \{css}
+                 </style>
+                 <div class="tabbar__content ons-swiper">
+                   <div class="ons-swiper-target active">
+                      <slot name="pages"></slot>
+                   </div>
+                   <div class="ons-swiper-blocker"></div>
+                 </div>
+                 <div class="tabbar">
+                   <slot name="tabs"></slot>
+                 </div>
                  """
 
-               (getActiveTab, setActiveTab) <- State "activeTab" Nothing
+               (getLastActive, setLastActive) <- State "lastactive" Nothing
 
-               Listener "active" (\self, target => do maybeOldTab <- getActiveTab <*> pure self
-                                                      case maybeOldTab of
-                                                           Just oldTab => removeActive oldTab
+               FirstConnected firstTabListener
+
+               Listener "active" (\self, target => do lastActive <- getLastActive <*> pure self
+                                                      case lastActive of
                                                            Nothing => pure ()
+                                                           Just id => removeActive id self
 
-                                                      newTab <- id target
-                                                      setActiveTab (Just newTab) <*> pure self)
+                                                      currentActive <- getId target
+                                                      setLastActive (Just currentActive) <*> pure self)
+
+               Pure ()
