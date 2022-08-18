@@ -52,7 +52,6 @@ const defineCustomElement = (tagName, make) => {
   const description = make({});
 
   console.log(description);
-  window.d = description;
 
   let template;
   if (description.template) {
@@ -72,7 +71,7 @@ const defineCustomElement = (tagName, make) => {
         this.shadowRoot.appendChild(template.content.cloneNode(true));
       }
 
-      this._state = {...(d.state || {})};
+      this._state = {...(description.state || {})};
     }
 
     connectedCallback() {
