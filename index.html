@@ -8,16 +8,17 @@
   <script src="build/exec/out.js" defer></script>
 </head>
 <body>
-
   <ons-page>
     <ons-tabbar>
       <ons-page slot="pages">Hello there</ons-page>
+      <ons-page slot="pages">Goodbye now</ons-page>
+      <ons-page slot="pages">Good afternoon</ons-page>
 
-      <ons-tab id="tab1" class="tabbar__item" slot="tabs">home</ons-tab>
-      <ons-tab id="tab2" class="tabbar__item" slot="tabs">settings</ons-tab>
+      <ons-tab class="tabbar__item" slot="tabs">home</ons-tab>
+      <ons-tab class="tabbar__item" slot="tabs">settings</ons-tab>
+      <ons-tab class="tabbar__item" slot="tabs">help</ons-tab>
     </ons-tabbar>
   </ons-page>
-
   <script>
     window.e = document.querySelector('eric-element');
   </script>
