@@ -37,6 +37,8 @@ const makeTemplate = template => obj => ({...obj, template});
 
 const makeState = (_, key, initialValue) => obj => ({...obj, state: {...(obj.state || {}), [key]: initialValue}});
 
+const makeFirstConnected = callback => obj => ({...obj, firstConnected: [...(obj.firstConnected || []), callback]});
+
 const makeBind = (f, g) => obj => g(f(obj));
 
 const makePure = () => obj => obj;
@@ -72,11 +74,18 @@ const defineCustomElement = (tagName, make) => {
       }
 
       this._state = {...(description.state || {})};
+
+      this._connectedOnce = false;
     }
 
     connectedCallback() {
       this.listeners.forEach(({event, handler}) =>
         this.addEventListener(event, handler));
+
+      if (!this._connectedOnce) {
+        this._connectedOnce = true;
+        description.firstConnected?.forEach(callback => callback(this)());
+      }
     }
 
     disconnectedCallback() {

@@ -51,6 +51,8 @@ mutual
     Depend : (want : CustomElement a) -> (dep : CustomElement b) ->   -- use some functionality from another custom element
              {auto has : Has want dep} -> CustomElement a
 
+    FirstConnected : (callback : This -> IO ()) -> CustomElement ()     -- do something the first time the element is connected
+
     (>>=) : CustomElement a -> (a -> CustomElement b) -> CustomElement b
     (>>) : CustomElement a -> CustomElement b -> CustomElement b
     Pure : t -> CustomElement t

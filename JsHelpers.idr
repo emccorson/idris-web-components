@@ -102,6 +102,13 @@ export
 makeState : String -> t -> IO AnyPtr
 makeState key init = primIO $ prim__makeState key init
 
+%foreign "browser:lambda: makeFirstConnected"
+prim__makeFirstConnected : (This -> PrimIO ()) -> PrimIO AnyPtr
+
+export
+makeFirstConnected : (This -> IO ()) -> IO AnyPtr
+makeFirstConnected callback = primIO $ prim__makeFirstConnected (\self => toPrim $ callback self)
+
 %foreign "browser:lambda: makeBind"
 prim__makeBind : AnyPtr -> AnyPtr -> PrimIO AnyPtr
 

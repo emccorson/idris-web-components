@@ -21,6 +21,7 @@ customElement tagName inp = do (_, make) <- buildClass inp
     buildClass (Depend want _) = do (res, _) <- buildClass want
                                     make <- makePure
                                     pure (res, make)
+    buildClass (FirstConnected callback) = makeFirstConnected callback >>= \make => pure ((), make)
     buildClass (x >>= f) = do (res1, make1) <- buildClass x
                               (res2, make2) <- buildClass (f res1)
                               bothMakes <- makeBind make1 make2
