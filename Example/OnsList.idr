@@ -1,7 +1,7 @@
-module OnsListItem
+module Example.OnsList
 
 import CustomElement
-import OnsGlobal
+import Example.OnsGlobal
 
 css : String
 css =
@@ -58,7 +58,7 @@ css =
       </ul>
   */
 
-  .list {
+  :host, .list {
     /* mixin: reset-base */
     padding: 0;
     margin: 0;
@@ -92,14 +92,14 @@ css =
 
   /* @media (--retina-query) */
   @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi), (min-resolution: 2dppx) {
-    .list {
+    :host, .list {
       background-image:
         linear-gradient(0deg, var(--list-item-separator-color), var(--list-item-separator-color) 50%, transparent 50%),
         linear-gradient(180deg, var(--list-item-separator-color), var(--list-item-separator-color) 50%, transparent 50%);
     }
   }
 
-  :host, .list-item {
+  .list-item {
     position: relative;
     width: 100%;
     list-style: none;
@@ -1168,38 +1168,11 @@ css =
   """
 
 export
-onsListItem : CustomElement ()
-onsListItem = do Template
-                   """
-                   <style>
-                     \{css}
-                   </style>
-                   <div class="list-item__top">
-                     <div class="list-item__left">
-                       <slot name="left"></slot>
-                     </div>
-                     <div class="list-item__center">
-                       <slot name="center"></slot>
-                       <slot></slot>
-                     </div>
-                     <div class="list-item__right">
-                       <slot name="right"></slot>
-                     </div>
-                   </div>
-                   <div class="list-item__expandable-content">
-                     <slot name="expandable-content"></slot>
-                   </div>
-                   """
-
-                 (getExpandable, _) <- Prop Bool "expandable"
-
-                 let expandedEffect = \self, last, current => do True <- getExpandable <*> pure self
-                                                                   | False => pure ()
-                                                                 let msg = if current
-                                                                           then "expanding"
-                                                                           else "contracting"
-                                                                 putStrLn msg
-                 (getExpanded, setExpanded) <- PropEffect Bool "expanded" expandedEffect
-
-                 Listener "click" (\self => do isExpanded <- getExpanded <*> pure self
-                                               setExpanded (not isExpanded) <*> pure self)
+onsList : CustomElement ()
+onsList = do Template
+               """
+               <style>
+                 \{css}
+               </style>
+               <slot></slot>
+               """

@@ -1,7 +1,7 @@
-module OnsPage
+module Example.OnsPage
 
 import CustomElement
-import OnsGlobal
+import Example.OnsGlobal
 
 css : String
 css =

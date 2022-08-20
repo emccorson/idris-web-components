@@ -1,7 +1,7 @@
-module OnsToolbar
+module Example.OnsToolbar
 
 import CustomElement
-import OnsGlobal
+import Example.OnsGlobal
 
 css : String
 css =

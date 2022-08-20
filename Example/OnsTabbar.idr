@@ -1,7 +1,7 @@
-module OnsTabbar
+module Example.OnsTabbar
 
 import CustomElement
-import OnsGlobal
+import Example.OnsGlobal
 
 css : String
 css =

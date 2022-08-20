@@ -2,10 +2,10 @@ module Main
 
 import CustomElement
 
-import OnsPage
-import OnsTabbar
-import OnsTab
-import OnsToolbar
+import Example.OnsPage
+import Example.OnsTabbar
+import Example.OnsTab
+import Example.OnsToolbar
 
 main : IO ()
 main = do customElement "ons-page" onsPage

@@ -1,4 +1,4 @@
-module OnsGlobal
+module Example.OnsGlobal
 
 onsenuiCoreCss : String
 onsenuiCoreCss =

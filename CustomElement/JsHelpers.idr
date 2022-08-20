@@ -1,6 +1,6 @@
-module JsHelpers
+module CustomElement.JsHelpers
 
-import Types
+import CustomElement.Types
 import Decidable.Equality
 
 typeString : PropType t -> String
