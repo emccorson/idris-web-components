@@ -7,6 +7,8 @@ import Example.OnsTabbar
 import Example.OnsTab
 import Example.OnsToolbar
 
+%default total
+
 main : IO ()
 main = do customElement "ons-page" onsPage
           customElement "ons-tabbar" onsTabbar

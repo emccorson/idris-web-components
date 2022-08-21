@@ -3,6 +3,8 @@ module CustomElement.JsHelpers
 import CustomElement.Types
 import Decidable.Equality
 
+%default total
+
 typeString : PropType t -> String
 typeString PropString = "string"
 typeString PropBool = "bool"

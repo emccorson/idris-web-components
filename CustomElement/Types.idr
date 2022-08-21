@@ -1,5 +1,7 @@
 module CustomElement.Types
 
+%default total
+
 public export
 data PropType : Type -> Type where
   PropString : PropType String

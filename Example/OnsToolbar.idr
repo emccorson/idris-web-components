@@ -3,6 +3,8 @@ module Example.OnsToolbar
 import CustomElement
 import Example.OnsGlobal
 
+%default total
+
 css : String
 css =
   """

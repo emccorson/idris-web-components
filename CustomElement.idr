@@ -3,7 +3,7 @@ module CustomElement
 import public CustomElement.JsHelpers
 import public CustomElement.Types
 
--- %default total
+%default total
 
 export
 customElement : (tagName : String) -> CustomElement a -> IO ()

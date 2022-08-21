@@ -1,5 +1,7 @@
 module Example.OnsGlobal
 
+%default total
+
 onsenuiCoreCss : String
 onsenuiCoreCss =
   """
