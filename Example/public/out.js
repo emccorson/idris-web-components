@@ -364,7 +364,7 @@ function Prelude_IO_map_Functor_IO($0, $1, $2) {
  return $0($3);
 }
 
-function CustomElement_n__2518_462_buildClass($0, $1, $2, $3) {
+function CustomElement_n__2523_528_buildClass($0, $1, $2, $3) {
  switch($2.h) {
   case 0: {
    const $5 = CustomElement_JsHelpers_makeProp($2.a2, $2.a3)($3);
@@ -391,7 +391,7 @@ function CustomElement_n__2518_462_buildClass($0, $1, $2, $3) {
    return {a1: {a1: $4f => CustomElement_JsHelpers_getState($2.a2, $4f), a2: $54 => $55 => CustomElement_JsHelpers_setState($2.a2, $54, $55)}, a2: $48};
   }
   case 6: {
-   const $5b = CustomElement_n__2518_462_buildClass($0, $1, $2.a1, $3);
+   const $5b = CustomElement_n__2523_528_buildClass($0, $1, $2.a1, $3);
    const $62 = CustomElement_JsHelpers_makePure($3);
    return {a1: $5b.a1, a2: $62};
   }
@@ -400,14 +400,14 @@ function CustomElement_n__2518_462_buildClass($0, $1, $2, $3) {
    return {a1: 0, a2: $67};
   }
   case 8: {
-   const $6d = CustomElement_n__2518_462_buildClass($0, $1, $2.a1, $3);
-   const $74 = CustomElement_n__2518_462_buildClass($0, $1, $2.a2($6d.a1), $3);
+   const $6d = CustomElement_n__2523_528_buildClass($0, $1, $2.a1, $3);
+   const $74 = CustomElement_n__2523_528_buildClass($0, $1, $2.a2($6d.a1), $3);
    const $7d = CustomElement_JsHelpers_makeBind($6d.a2, $74.a2, $3);
    return {a1: $74.a1, a2: $7d};
   }
   case 9: {
-   const $84 = CustomElement_n__2518_462_buildClass($0, $1, $2.a1, $3);
-   const $8b = CustomElement_n__2518_462_buildClass($0, $1, $2.a2, $3);
+   const $84 = CustomElement_n__2523_528_buildClass($0, $1, $2.a1, $3);
+   const $8b = CustomElement_n__2523_528_buildClass($0, $1, $2.a2, $3);
    const $92 = CustomElement_JsHelpers_makeBind($84.a2, $8b.a2, $3);
    return {a1: $8b.a1, a2: $92};
   }
@@ -419,7 +419,7 @@ function CustomElement_n__2518_462_buildClass($0, $1, $2, $3) {
 }
 
 function CustomElement_customElement($0, $1, $2) {
- const $3 = CustomElement_n__2518_462_buildClass($1, $0, $1, $2);
+ const $3 = CustomElement_n__2523_528_buildClass($1, $0, $1, $2);
  return CustomElement_JsHelpers_defineCustomElement($0, $3.a2, $2);
 }
 
@@ -430,51 +430,51 @@ function CustomElement_JsHelpers_with__stringAttrx2csurjProof_670($0, $1) {
  }
 }
 
-function CustomElement_JsHelpers_n__2657_594_toAttrx27($0, $1, $2) {
+function CustomElement_JsHelpers_n__2662_594_toAttrx27($0, $1, $2) {
  switch($2.h) {
   case 0: return {h: 0};
   case 1: return {a1: $1};
  }
 }
 
-function CustomElement_JsHelpers_n__2756_692_toAttr($0) {
+function CustomElement_JsHelpers_n__2761_692_toAttr($0) {
  switch($0) {
   case 0: return {h: 0};
   case 1: return {a1: ''};
  }
 }
 
-function CustomElement_JsHelpers_n__2656_590_toAttr($0) {
- return CustomElement_JsHelpers_n__2657_594_toAttrx27($0, $0, Decidable_Equality_decEq_DecEq_String($0, 'default'));
+function CustomElement_JsHelpers_n__2661_590_toAttr($0) {
+ return CustomElement_JsHelpers_n__2662_594_toAttrx27($0, $0, Decidable_Equality_decEq_DecEq_String($0, 'default'));
 }
 
-function CustomElement_JsHelpers_n__2756_694_surjProof($0) {
+function CustomElement_JsHelpers_n__2761_694_surjProof($0) {
  switch($0) {
   case 0: return 0;
   case 1: return 0;
  }
 }
 
-function CustomElement_JsHelpers_n__2656_592_surjProof($0) {
+function CustomElement_JsHelpers_n__2661_592_surjProof($0) {
  return CustomElement_JsHelpers_with__stringAttrx2csurjProof_670($0, Decidable_Equality_decEq_DecEq_String($0, 'default'));
 }
 
-function CustomElement_JsHelpers_n__2658_618_fromAttrx27($0) {
+function CustomElement_JsHelpers_n__2663_618_fromAttrx27($0) {
  switch($0.h) {
   case 0: return {a1: 'default', a2: {h: 0, a1: 0}};
   case undefined: return {a1: $0.a1, a2: Decidable_Equality_decEq_DecEq_String($0.a1, 'default')};
  }
 }
 
-function CustomElement_JsHelpers_n__2756_693_fromAttr($0) {
+function CustomElement_JsHelpers_n__2761_693_fromAttr($0) {
  switch($0.h) {
   case 0: return 0;
   case undefined: return 1;
  }
 }
 
-function CustomElement_JsHelpers_n__2656_591_fromAttr($0) {
- const $1 = CustomElement_JsHelpers_n__2658_618_fromAttrx27($0);
+function CustomElement_JsHelpers_n__2661_591_fromAttr($0) {
+ const $1 = CustomElement_JsHelpers_n__2663_618_fromAttrx27($0);
  return $1.a1;
 }
 
@@ -486,7 +486,7 @@ function CustomElement_JsHelpers_typeString($0) {
 }
 
 const CustomElement_JsHelpers_stringAttr = __lazy(function () {
- return {a1: $1 => CustomElement_JsHelpers_n__2656_590_toAttr($1), a2: $5 => CustomElement_JsHelpers_n__2656_591_fromAttr($5), a3: $9 => CustomElement_JsHelpers_n__2656_592_surjProof($9)};
+ return {a1: $1 => CustomElement_JsHelpers_n__2661_590_toAttr($1), a2: $5 => CustomElement_JsHelpers_n__2661_591_fromAttr($5), a3: $9 => CustomElement_JsHelpers_n__2661_592_surjProof($9)};
 });
 
 function CustomElement_JsHelpers_setter($0, $1, $2, $3) {
@@ -559,7 +559,7 @@ function CustomElement_JsHelpers_defineCustomElement($0, $1, $2) {
 }
 
 const CustomElement_JsHelpers_boolAttr = __lazy(function () {
- return {a1: $1 => CustomElement_JsHelpers_n__2756_692_toAttr($1), a2: $5 => CustomElement_JsHelpers_n__2756_693_fromAttr($5), a3: $9 => CustomElement_JsHelpers_n__2756_694_surjProof($9)};
+ return {a1: $1 => CustomElement_JsHelpers_n__2761_692_toAttr($1), a2: $5 => CustomElement_JsHelpers_n__2761_693_fromAttr($5), a3: $9 => CustomElement_JsHelpers_n__2761_694_surjProof($9)};
 });
 
 function Decidable_Equality_n__4471_1648_primitiveNotEq($0, $1, $2) {

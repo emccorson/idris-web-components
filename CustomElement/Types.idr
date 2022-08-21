@@ -60,19 +60,20 @@ mutual
     Pure : t -> CustomElement t
 
   -- TODO: Fix this!
-  -- The first problem is that Always is not strictly positive.
-  -- The second problem is that AlwaysBind1 has g : b -> CustomElement b, but I want g : b -> CustomElement c.
-  --public export
-  --data Always : (want : CustomElement b) -> (f : a -> CustomElement b) -> Type where
-  --  AlwaysHere : ((x : a) -> f x = want) -> Always want f
-  --  AlwaysBind1 : Always want f -> Always want (\x => f x >>= g)
-  --  AlwaysBind2 : Always want f -> Always want (\x => f x >> g)
+  -- It doesn't work when the function uses the value passed as an argument
+  -- e.g. \x => Prop String "hello" >>= Prop String x     doesn't work even if you just want a Prop String "hello"
+  -- (I guess because it no longer matches `const`)
+  public export
+  data Always : (want : CustomElement t) -> (f : a -> CustomElement b) -> Type where
+    AlwaysHere : Always want (const want)
+    AlwaysBind1 : Always want f -> Always want (\x => f x >>= g)
+    AlwaysBind2 : Always want f -> Always want (\x => f x >> g)
 
   public export
   data Has : (want : CustomElement a) -> (ce : CustomElement b) -> Type where
     HasHere : Has x x
     HasBind1 : Has x y -> Has x (y >>= f)
-    -- HasBind2 : Always x f -> Has x (y >>= f)
+    HasBind2 : Always x f -> Has x (y >>= f)
     HasBind3 : Has x y -> Has x (y >> z)
     HasBind4 : Has x z -> Has x (y >> z)
     HasPropEffect : {pt : PropType t} -> Has (Prop t name) (PropEffect t name f)
