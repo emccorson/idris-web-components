@@ -13,28 +13,50 @@
 
       <ons-page slot="pages">
         <ons-toolbar slot="toolbar">
-          Good m-
+          Page 1
         </ons-toolbar>
-        orning!
+
+        <p>The components on this page were written with idris-web-components.</p>
+
+        <p>This includes the toolbar at the top and the tabbar and tabs at the bottom.</p>
+
+        <p>Click on a tab to change pages.</p>
       </ons-page>
 
       <ons-page slot="pages">
         <ons-toolbar slot="toolbar">
-          Good a-
+          Page 2
         </ons-toolbar>
-        fternoon!
+        <p>Try inspecting the tab of the current page in your browser dev tools.</p>
+
+        <p>Notice that it has the <code>active</code> attribute.</p>
+
+        <p>Now click on a different tab and notice <code>active</code> has been removed.</p>
+
+        <p>This is handled by parent-child communication between the tabbar and tabs components.</p>
       </ons-page>
 
       <ons-page slot="pages">
         <ons-toolbar slot="toolbar">
-          Good e-
+          Page 3
         </ons-toolbar>
-        vening!
+        <p>As well as attributes and listeners, other features that can be added to Custom Elements with
+        idris-web-components include:</p>
+
+        <ul>
+          <li>Shadow DOM templates (<code>Template</code>)</li>
+          <li>The ability to depend on the functionality of another Custom Element (<code>Depend</code>)</li>
+          <li>Internal state for use in Idris, similar to the React State hook (<code>State</code>)</li>
+          <li>Properties that do some side-effect when their value is changed (<code>PropEffect</code>)</li>
+        </ul>
+
+        <p>For a full list of features, see the <code>CustomElement</code> data type in
+        <a target="_blank" href="https://github.com/emccorson/idris-web-components/blob/master/CustomElement/Types.idr">CustomElement/Types.idr</a>.</p>
       </ons-page>
 
-      <ons-tab class="tabbar__item" slot="tabs">home</ons-tab>
-      <ons-tab class="tabbar__item" slot="tabs">settings</ons-tab>
-      <ons-tab class="tabbar__item" slot="tabs">help</ons-tab>
+      <ons-tab class="tabbar__item" slot="tabs">page 1</ons-tab>
+      <ons-tab class="tabbar__item" slot="tabs">page 2</ons-tab>
+      <ons-tab class="tabbar__item" slot="tabs">page 3</ons-tab>
     </ons-tabbar>
   </ons-page>
   <script>
